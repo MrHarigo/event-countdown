@@ -33,6 +33,8 @@ const EXAMPLE_EVENTS = [
 ]
 
 export default async function LandingPage() {
+  if (process.env.DEV_BYPASS_AUTH === 'true') redirect('/dashboard')
+
   const supabase = await createClient()
   const {
     data: { user },

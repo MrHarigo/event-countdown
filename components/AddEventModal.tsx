@@ -33,15 +33,17 @@ interface AddEventModalProps {
     color: EventColor
     note?: string
   }) => Promise<void>
+  onDelete?: (id: string) => Promise<void>
 }
 
-export default function AddEventModal({ open, onOpenChange, editingEvent, onSubmit }: AddEventModalProps) {
+export default function AddEventModal({ open, onOpenChange, editingEvent, onSubmit, onDelete }: AddEventModalProps) {
   const [title, setTitle] = useState('')
   const [emoji, setEmoji] = useState('🎯')
   const [targetDate, setTargetDate] = useState('')
   const [color, setColor] = useState<EventColor>('violet')
   const [note, setNote] = useState('')
   const [loading, setLoading] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     if (editingEvent) {
@@ -164,18 +166,49 @@ export default function AddEventModal({ open, onOpenChange, editingEvent, onSubm
           </div>
 
           <div className="flex gap-3 pt-1">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-              className="flex-1 text-zinc-400 hover:text-white hover:bg-white/5"
-            >
-              Cancel
-            </Button>
+            {editingEvent && onDelete ? (
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={deleting}
+                onClick={async () => {
+                  setDeleting(true)
+                  try {
+                    await onDelete(editingEvent.id)
+                    onOpenChange(false)
+                  } finally {
+                    setDeleting(false)
+                  }
+                }}
+                className="text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 disabled:opacity-40"
+              >
+                {deleting ? 'Deleting…' : 'Delete'}
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => onOpenChange(false)}
+                className="text-zinc-400 hover:text-white hover:bg-white/5"
+              >
+                Cancel
+              </Button>
+            )}
+            <div className="flex-1" />
+            {editingEvent && (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => onOpenChange(false)}
+                className="text-zinc-400 hover:text-white hover:bg-white/5"
+              >
+                Cancel
+              </Button>
+            )}
             <Button
               type="submit"
               disabled={loading || !title.trim() || !targetDate}
-              className="flex-1 bg-white text-zinc-900 hover:bg-zinc-100 font-semibold disabled:opacity-40"
+              className="bg-white text-zinc-900 hover:bg-zinc-100 font-semibold disabled:opacity-40"
             >
               {loading ? 'Saving...' : editingEvent ? 'Save changes' : 'Add milestone'}
             </Button>

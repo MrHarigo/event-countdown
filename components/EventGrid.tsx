@@ -86,7 +86,7 @@ export default function EventGrid({ initialEvents }: { initialEvents: EventRow[]
           </button>
         </motion.div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex flex-col gap-3">
           <AnimatePresence mode="popLayout">
             {events.map((event, index) => (
               <EventCard
@@ -94,7 +94,6 @@ export default function EventGrid({ initialEvents }: { initialEvents: EventRow[]
                 event={event}
                 index={index}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
               />
             ))}
           </AnimatePresence>
@@ -120,6 +119,7 @@ export default function EventGrid({ initialEvents }: { initialEvents: EventRow[]
         onOpenChange={setModalOpen}
         editingEvent={editingEvent}
         onSubmit={handleSubmit}
+        onDelete={handleDelete}
       />
     </>
   )
