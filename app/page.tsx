@@ -49,7 +49,6 @@ export default async function LandingPage() {
             <span className="text-lg">⏳</span>
             <span className="font-semibold text-white tracking-tight">Milestone</span>
           </div>
-          <AuthButtons />
         </div>
       </nav>
 
