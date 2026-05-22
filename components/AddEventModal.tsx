@@ -110,9 +110,10 @@ export default function AddEventModal({ open, onOpenChange, editingEvent, onSubm
   const selectedDate = targetDate ? new Date(targetDate + 'T00:00:00') : undefined
 
   useEffect(() => {
-    setCalendarMonth(selectedDate ?? new Date())
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open])
+    setCalendarMonth(
+      editingEvent ? new Date(editingEvent.target_date + 'T00:00:00') : new Date()
+    )
+  }, [open, editingEvent])
   const displayDate = selectedDate
     ? selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     : 'Pick a date'
