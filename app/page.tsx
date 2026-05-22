@@ -7,103 +7,98 @@ const EXAMPLE_EVENTS = [
     emoji: '🚗',
     title: 'Getting a car',
     days: 164,
-    color: 'from-violet-500/20 to-purple-500/5 border-violet-500/25',
-    accent: 'text-violet-300',
-    badge: 'bg-violet-500/15 text-violet-300 border-violet-500/20',
     date: 'November 1, 2026',
+    gradient: 'from-violet-500/10 to-transparent',
+    border: 'border-violet-500/20',
+    accent: 'text-violet-300',
+    badge: 'text-violet-400',
   },
   {
     emoji: '🎵',
     title: 'Joji Concert Bangkok',
     days: 189,
-    color: 'from-rose-500/20 to-pink-500/5 border-rose-500/25',
-    accent: 'text-rose-300',
-    badge: 'bg-rose-500/15 text-rose-300 border-rose-500/20',
     date: 'November 26, 2026',
+    gradient: 'from-rose-500/10 to-transparent',
+    border: 'border-rose-500/20',
+    accent: 'text-rose-300',
+    badge: 'text-rose-400',
   },
   {
     emoji: '✈️',
     title: 'Trip to Kyoto',
     days: 312,
-    color: 'from-amber-500/20 to-orange-500/5 border-amber-500/25',
-    accent: 'text-amber-300',
-    badge: 'bg-amber-500/15 text-amber-300 border-amber-500/20',
     date: 'March 29, 2027',
+    gradient: 'from-amber-500/10 to-transparent',
+    border: 'border-amber-500/20',
+    accent: 'text-amber-300',
+    badge: 'text-amber-400',
   },
 ]
+
+function formatUnits(days: number) {
+  return [
+    { value: Math.floor(days / 30), unit: '月' },
+    { value: Math.floor(days / 7),  unit: '週' },
+    { value: days,                  unit: '日' },
+  ].filter(({ value, unit }) => value > 0 || unit === '日')
+}
 
 export default async function LandingPage() {
   if (process.env.DEV_BYPASS_AUTH === 'true') redirect('/dashboard')
 
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
+  const { data: { user } } = await supabase.auth.getUser()
   if (user) redirect('/dashboard')
 
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col">
-      {/* Nav */}
-      <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/5 bg-zinc-950/80 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">⏳</span>
-            <span className="font-semibold text-white tracking-tight">Milestone</span>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero */}
       <main className="flex-1 flex flex-col">
-        <section className="max-w-6xl mx-auto w-full px-6 pt-32 pb-20 flex flex-col items-center text-center gap-6">
-          <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-sm text-zinc-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Count down to what matters
-          </div>
-          <h1 className="text-5xl sm:text-7xl font-black text-white tracking-tighter leading-[0.95] max-w-3xl">
+        {/* Hero */}
+        <section className="max-w-3xl mx-auto w-full pt-24 pb-12 flex flex-col items-center text-center gap-6 px-8">
+          <h1 className="text-5xl sm:text-6xl font-black text-white tracking-tighter leading-[0.95]">
             Your biggest{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-pink-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-pink-400 pr-1">
               moments,
             </span>{' '}
             counting down.
           </h1>
-          <p className="text-zinc-400 text-lg sm:text-xl max-w-xl leading-relaxed">
-            Track concerts, trips, milestones, and life goals with beautiful live countdowns.
-            Never lose track of what you&apos;re looking forward to.
+          <p className="text-zinc-400 text-lg max-w-md leading-relaxed">
+            Track life milestones with convenient live countdowns.
           </p>
           <AuthButtons prominent />
         </section>
 
         {/* Example cards */}
-        <section className="max-w-6xl mx-auto w-full px-6 pb-24">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {EXAMPLE_EVENTS.map((event, i) => (
-              <div
-                key={i}
-                className={`rounded-2xl border bg-gradient-to-br ${event.color} bg-zinc-900/60 backdrop-blur-sm p-6 flex flex-col gap-4`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{event.emoji}</span>
-                  <h3 className="font-semibold text-white text-base leading-tight">{event.title}</h3>
-                </div>
-                <div className="flex flex-col items-center justify-center py-4 gap-1">
-                  <div className={`text-8xl font-black tracking-tighter leading-none ${event.accent}`}>
-                    {event.days}
+        <section className="max-w-3xl mx-auto w-full px-6 pb-24 flex flex-col gap-3">
+          {EXAMPLE_EVENTS.map((event, i) => (
+            <div
+              key={i}
+              className={`group flex items-center justify-between rounded-2xl border bg-gradient-to-r ${event.gradient} ${event.border} bg-zinc-900/50 px-6 h-20`}
+            >
+              <div className="flex items-center gap-4 min-w-0">
+                <span className="text-2xl flex-shrink-0">{event.emoji}</span>
+                <div className="min-w-0">
+                  <p className="font-semibold text-white leading-tight truncate text-xl group-hover:text-base transition-all duration-500 ease-in-out">{event.title}</p>
+                  <div className="overflow-hidden max-h-0 group-hover:max-h-8 transition-all duration-500 ease-in-out">
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className={`text-xs ${event.badge} opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150`}>{event.date}</span>
+                    </div>
                   </div>
-                  <div className="text-zinc-400 text-sm font-medium uppercase tracking-widest">days</div>
-                </div>
-                <div>
-                  <span className={`text-xs border rounded-full px-2.5 py-1 ${event.badge}`}>
-                    {event.date}
-                  </span>
                 </div>
               </div>
-            ))}
-          </div>
-          <p className="text-center text-zinc-600 text-sm mt-4">
-            Example milestones — yours will count down in real time ✨
-          </p>
+              <div className="flex items-center gap-3 flex-shrink-0 ml-6">
+                {formatUnits(event.days).map(({ value, unit }, i, arr) => (
+                  <div key={unit} className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                      <span className={`text-4xl font-black tabular-nums leading-none ${event.accent}`}>{value}</span>
+                      <span className="text-zinc-500 text-sm">{unit}</span>
+                    </div>
+                    {i < arr.length - 1 && <span className="text-zinc-700">·</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </section>
       </main>
     </div>
