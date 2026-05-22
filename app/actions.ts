@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-export type EventColor = 'violet' | 'rose' | 'amber' | 'sky' | 'emerald'
+export type EventColor = string
 
 export interface EventRow {
   id: string

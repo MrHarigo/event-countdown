@@ -2,45 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { EventRow, EventColor } from '@/app/actions'
+import { EventRow } from '@/app/actions'
 
-const colorThemes: Record<EventColor, {
-  gradient: string
-  border: string
-  accent: string
-  badge: string
-}> = {
-  violet: {
-    gradient: 'from-violet-500/10 to-transparent',
-    border: 'border-violet-500/20',
-    accent: 'text-violet-300',
-    badge: 'text-violet-400',
-  },
-  rose: {
-    gradient: 'from-rose-500/10 to-transparent',
-    border: 'border-rose-500/20',
-    accent: 'text-rose-300',
-    badge: 'text-rose-400',
-  },
-  amber: {
-    gradient: 'from-amber-500/10 to-transparent',
-    border: 'border-amber-500/20',
-    accent: 'text-amber-300',
-    badge: 'text-amber-400',
-  },
-  sky: {
-    gradient: 'from-sky-500/10 to-transparent',
-    border: 'border-sky-500/20',
-    accent: 'text-sky-300',
-    badge: 'text-sky-400',
-  },
-  emerald: {
-    gradient: 'from-emerald-500/10 to-transparent',
-    border: 'border-emerald-500/20',
-    accent: 'text-emerald-300',
-    badge: 'text-emerald-400',
-  },
+const PRESETS: Record<string, { gradient: string; accent: string; badge: string }> = {
+  violet:  { gradient: 'from-violet-500/10',  accent: 'text-violet-300',  badge: 'text-violet-400'  },
+  rose:    { gradient: 'from-rose-500/10',     accent: 'text-rose-300',    badge: 'text-rose-400'    },
+  amber:   { gradient: 'from-amber-500/10',    accent: 'text-amber-300',   badge: 'text-amber-400'   },
+  sky:     { gradient: 'from-sky-500/10',      accent: 'text-sky-300',     badge: 'text-sky-400'     },
+  emerald: { gradient: 'from-emerald-500/10',  accent: 'text-emerald-300', badge: 'text-emerald-400' },
 }
+
+function isHex(color: string) { return color.startsWith('#') }
 
 function getCountdown(targetDate: string) {
   const now = new Date()
@@ -89,12 +61,19 @@ function breakdownUnits(totalDays: number) {
 
 export default function EventCard({ event, index, onEdit }: EventCardProps) {
   const [countdown, setCountdown] = useState(() => getCountdown(event.target_date))
-  const theme = colorThemes[event.color] || colorThemes.violet
+  const preset = PRESETS[event.color]
+  const hex = isHex(event.color)
 
   useEffect(() => {
     const interval = setInterval(() => setCountdown(getCountdown(event.target_date)), 1000)
     return () => clearInterval(interval)
   }, [event.target_date])
+
+  const cardStyle = hex
+    ? { background: `linear-gradient(to right, ${event.color}18, transparent), rgb(24 24 27 / 0.5)` }
+    : undefined
+  const accentStyle = hex ? { color: event.color } : undefined
+  const badgeStyle  = hex ? { color: event.color } : undefined
 
   return (
     <motion.div
@@ -103,10 +82,11 @@ export default function EventCard({ event, index, onEdit }: EventCardProps) {
       transition={{ duration: 0.35, delay: index * 0.06, ease: [0.23, 1, 0.32, 1] }}
       className={`
         group relative flex items-center justify-between
-        rounded-2xl bg-gradient-to-r ${theme.gradient}
-        bg-zinc-900/50 backdrop-blur-sm px-6 h-20
+        rounded-2xl px-6 h-20 backdrop-blur-sm
+        ${hex ? '' : `bg-gradient-to-r ${preset?.gradient ?? 'from-violet-500/10'} to-transparent bg-zinc-900/50`}
         transition-colors duration-200 hover:bg-zinc-900/70
       `}
+      style={cardStyle}
     >
       {/* Left: emoji + title + meta */}
       <div className="flex items-center gap-4 min-w-0">
@@ -115,7 +95,10 @@ export default function EventCard({ event, index, onEdit }: EventCardProps) {
           <h3 className="font-semibold text-white leading-tight truncate text-xl group-hover:text-base transition-all duration-500 ease-in-out">{event.title}</h3>
           <div className="overflow-hidden max-h-0 group-hover:max-h-8 transition-all duration-500 ease-in-out">
             <div className="flex items-center gap-3 mt-1">
-              <span className={`text-xs ${theme.badge} opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150`}>{formatDate(event.target_date)}</span>
+              <span
+                className={`text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150 ${!hex ? (preset?.badge ?? 'text-violet-400') : ''}`}
+                style={badgeStyle}
+              >{formatDate(event.target_date)}</span>
               {event.note && (
                 <span className="text-xs text-zinc-600 truncate opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150">{event.note}</span>
               )}
@@ -135,9 +118,10 @@ export default function EventCard({ event, index, onEdit }: EventCardProps) {
             {breakdownUnits(countdown.days).map(({ value, unit }, i, arr) => (
                 <div key={unit} className="flex items-center gap-4">
                   <div className="flex items-center gap-1">
-                    <span className={`text-4xl font-black tabular-nums leading-none ${theme.accent}`}>
-                      {value}
-                    </span>
+                    <span
+                      className={`text-4xl font-black tabular-nums leading-none ${!hex ? (preset?.accent ?? 'text-violet-300') : ''}`}
+                      style={accentStyle}
+                    >{value}</span>
                     <span className="text-zinc-500 text-sm">{unit}</span>
                   </div>
                   {i < arr.length - 1 && <span className="text-zinc-700 leading-none">·</span>}

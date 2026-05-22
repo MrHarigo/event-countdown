@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { HexColorPicker } from 'react-colorful'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -44,6 +45,22 @@ export default function AddEventModal({ open, onOpenChange, editingEvent, onSubm
   const [note, setNote] = useState('')
   const [loading, setLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const pickerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setPickerOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  useEffect(() => {
+    setPickerOpen(false)
+  }, [open])
 
   useEffect(() => {
     if (editingEvent) {
@@ -74,6 +91,7 @@ export default function AddEventModal({ open, onOpenChange, editingEvent, onSubm
   }
 
   const today = new Date().toISOString().split('T')[0]
+  const customHex = color.startsWith('#') ? color : '#a78bfa'
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -136,17 +154,48 @@ export default function AddEventModal({ open, onOpenChange, editingEvent, onSubm
           {/* Color */}
           <div className="flex flex-col gap-2">
             <Label className="text-zinc-400 text-xs uppercase tracking-wider">Color</Label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               {COLOR_OPTIONS.map((c) => (
                 <button
                   key={c.value}
                   type="button"
-                  onClick={() => setColor(c.value)}
+                  onClick={() => { setColor(c.value); setPickerOpen(false) }}
                   title={c.label}
                   className={`w-8 h-8 rounded-full ${c.preview} transition-all
                     ${color === c.value ? 'ring-2 ring-offset-2 ring-offset-zinc-900 ring-white/50 scale-110' : 'opacity-60 hover:opacity-100'}`}
                 />
               ))}
+
+              {/* Custom color swatch + popover */}
+              <div className="relative" ref={pickerRef}>
+                <button
+                  type="button"
+                  title="Custom color"
+                  onClick={() => setPickerOpen((v) => !v)}
+                  className={`w-8 h-8 rounded-full transition-all flex-shrink-0
+                    ${color.startsWith('#') ? 'ring-2 ring-offset-2 ring-offset-zinc-900 ring-white/50 scale-110' : 'opacity-60 hover:opacity-100'}`}
+                  style={{ background: color.startsWith('#') ? color : 'conic-gradient(red, yellow, lime, aqua, blue, magenta, red)' }}
+                />
+                {pickerOpen && (
+                  <div
+                    className="absolute left-0 top-10 z-50 p-3 rounded-2xl shadow-2xl"
+                    style={{ background: '#1c1c1f', border: '1px solid rgba(255,255,255,0.08)' }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                  >
+                    <HexColorPicker color={customHex} onChange={setColor} />
+                    <input
+                      type="text"
+                      value={color.startsWith('#') ? color : customHex}
+                      onChange={(e) => {
+                        const v = e.target.value
+                        if (/^#[0-9a-fA-F]{0,6}$/.test(v)) setColor(v)
+                      }}
+                      maxLength={7}
+                      className="mt-2 w-full rounded-lg px-2 py-1 text-xs text-center font-mono bg-zinc-800 border border-white/10 text-white focus:outline-none focus:border-white/30"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
