@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Milestone — Count down to what matters',
   description: 'Track your biggest life moments with beautiful live countdowns.',
+  icons: {
+    icon: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({
