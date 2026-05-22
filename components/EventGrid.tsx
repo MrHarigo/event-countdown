@@ -80,9 +80,9 @@ export default function EventGrid({ initialEvents }: { initialEvents: EventRow[]
           </div>
           <button
             onClick={handleAddClick}
-            className="mt-2 bg-white text-zinc-900 font-semibold px-5 py-2.5 rounded-xl hover:bg-zinc-100 transition-colors"
+            className="mt-2 w-full rounded-2xl border border-dashed border-white/8 py-4 text-zinc-700 hover:text-zinc-400 hover:border-white/15 transition-all text-sm"
           >
-            Add your first milestone
+            +
           </button>
         </motion.div>
       ) : (
@@ -97,21 +97,13 @@ export default function EventGrid({ initialEvents }: { initialEvents: EventRow[]
               />
             ))}
           </AnimatePresence>
+          <button
+            onClick={handleAddClick}
+            className="w-full rounded-2xl border border-dashed border-white/8 py-4 text-zinc-700 hover:text-zinc-400 hover:border-white/15 transition-all text-sm"
+          >
+            +
+          </button>
         </div>
-      )}
-
-      {/* Floating add button */}
-      {events.length > 0 && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3, duration: 0.3 }}
-          onClick={handleAddClick}
-          className="fixed bottom-8 right-8 w-14 h-14 bg-white text-zinc-900 rounded-full shadow-2xl flex items-center justify-center text-2xl font-light hover:bg-zinc-100 hover:scale-110 transition-all z-40"
-          aria-label="Add milestone"
-        >
-          +
-        </motion.button>
       )}
 
       <AddEventModal

@@ -99,12 +99,16 @@ export default function EventCard({ event, index, onEdit }: EventCardProps) {
       <div className="flex items-center gap-4 min-w-0">
         <span className="text-2xl flex-shrink-0">{event.emoji}</span>
         <div className="min-w-0">
-          <h3 className="font-semibold text-white text-base leading-tight truncate">{event.title}</h3>
-          <div className="flex items-center gap-3 mt-0.5">
-            <span className={`text-xs ${theme.badge}`}>{formatDate(event.target_date)}</span>
-            {event.note && (
-              <span className="text-xs text-zinc-600 truncate hidden sm:block">{event.note}</span>
-            )}
+          <h3 className="font-semibold text-white leading-tight truncate text-lg group-hover:text-base transition-all duration-500 ease-in-out">{event.title}</h3>
+          <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-all duration-500 ease-in-out">
+            <div className="overflow-hidden">
+              <div className="flex items-center gap-3 mt-1">
+                <span className={`text-xs ${theme.badge} opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150`}>{formatDate(event.target_date)}</span>
+                {event.note && (
+                  <span className="text-xs text-zinc-600 truncate opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150">{event.note}</span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
