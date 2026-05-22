@@ -91,23 +91,21 @@ export default function EventCard({ event, index, onEdit }: EventCardProps) {
       className={`
         group relative flex items-center justify-between
         rounded-2xl border bg-gradient-to-r ${theme.gradient} ${theme.border}
-        bg-zinc-900/50 backdrop-blur-sm px-6 py-5
-        transition-all duration-200 hover:bg-zinc-900/70
+        bg-zinc-900/50 backdrop-blur-sm px-6 h-20
+        transition-colors duration-200 hover:bg-zinc-900/70
       `}
     >
       {/* Left: emoji + title + meta */}
       <div className="flex items-center gap-4 min-w-0">
         <span className="text-2xl flex-shrink-0">{event.emoji}</span>
         <div className="min-w-0">
-          <h3 className="font-semibold text-white leading-tight truncate text-lg group-hover:text-base transition-all duration-500 ease-in-out">{event.title}</h3>
-          <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-all duration-500 ease-in-out">
-            <div className="overflow-hidden">
-              <div className="flex items-center gap-3 mt-1">
-                <span className={`text-xs ${theme.badge} opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150`}>{formatDate(event.target_date)}</span>
-                {event.note && (
-                  <span className="text-xs text-zinc-600 truncate opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150">{event.note}</span>
-                )}
-              </div>
+          <h3 className="font-semibold text-white leading-tight truncate text-xl group-hover:text-base transition-all duration-500 ease-in-out">{event.title}</h3>
+          <div className="overflow-hidden max-h-0 group-hover:max-h-8 transition-all duration-500 ease-in-out">
+            <div className="flex items-center gap-3 mt-1">
+              <span className={`text-xs ${theme.badge} opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150`}>{formatDate(event.target_date)}</span>
+              {event.note && (
+                <span className="text-xs text-zinc-600 truncate opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-150">{event.note}</span>
+              )}
             </div>
           </div>
         </div>
