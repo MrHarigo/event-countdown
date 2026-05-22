@@ -36,11 +36,16 @@ const EXAMPLE_EVENTS = [
 ]
 
 function formatUnits(days: number) {
+  const years  = Math.floor(days / 365)
+  const months = Math.floor((days - years * 365) / 30)
+  const weeks  = Math.floor((days - years * 365 - months * 30) / 7)
+  const rem    = days - years * 365 - months * 30 - weeks * 7
   return [
-    { value: Math.floor(days / 30), unit: '月' },
-    { value: Math.floor(days / 7),  unit: '週' },
-    { value: days,                  unit: '日' },
-  ].filter(({ value, unit }) => value > 0 || unit === '日')
+    { value: years,  unit: '年' },
+    { value: months, unit: '月' },
+    { value: weeks,  unit: '週' },
+    { value: rem,    unit: '日' },
+  ].filter(({ value }) => value > 0)
 }
 
 export default async function LandingPage() {

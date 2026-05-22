@@ -6,8 +6,11 @@ import EventCard from './EventCard'
 import AddEventModal from './AddEventModal'
 import { EventRow, EventColor, createEvent, updateEvent, deleteEvent } from '@/app/actions'
 
+const byDate = (a: EventRow, b: EventRow) =>
+  new Date(a.target_date).getTime() - new Date(b.target_date).getTime()
+
 export default function EventGrid({ initialEvents }: { initialEvents: EventRow[] }) {
-  const [events, setEvents] = useState<EventRow[]>(initialEvents)
+  const [events, setEvents] = useState<EventRow[]>([...initialEvents].sort(byDate))
   const [modalOpen, setModalOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState<EventRow | null>(null)
   const [, startTransition] = useTransition()
@@ -51,9 +54,7 @@ export default function EventGrid({ initialEvents }: { initialEvents: EventRow[]
         ...data,
       }
       setEvents((prev) =>
-        [...prev, tempEvent].sort((a, b) =>
-          new Date(a.target_date).getTime() - new Date(b.target_date).getTime()
-        )
+        [...prev, tempEvent].sort(byDate)
       )
       startTransition(async () => {
         const result = await createEvent(data)

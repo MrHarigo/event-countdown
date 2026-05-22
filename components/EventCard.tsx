@@ -74,6 +74,19 @@ interface EventCardProps {
   onEdit: (event: EventRow) => void
 }
 
+function breakdownUnits(totalDays: number) {
+  const years  = Math.floor(totalDays / 365)
+  const months = Math.floor((totalDays - years * 365) / 30)
+  const weeks  = Math.floor((totalDays - years * 365 - months * 30) / 7)
+  const days   = totalDays - years * 365 - months * 30 - weeks * 7
+  return [
+    { value: years,  unit: '年' },
+    { value: months, unit: '月' },
+    { value: weeks,  unit: '週' },
+    { value: days,   unit: '日' },
+  ].filter(({ value }) => value > 0)
+}
+
 export default function EventCard({ event, index, onEdit }: EventCardProps) {
   const [countdown, setCountdown] = useState(() => getCountdown(event.target_date))
   const theme = colorThemes[event.color] || colorThemes.violet
@@ -119,13 +132,7 @@ export default function EventCard({ event, index, onEdit }: EventCardProps) {
           <span className="text-2xl font-bold text-zinc-600">Past</span>
         ) : (
           <>
-            {[
-              { value: Math.floor(countdown.days / 30), unit: '月' },
-              { value: Math.floor(countdown.days / 7),  unit: '週' },
-              { value: countdown.days,                  unit: '日' },
-            ]
-              .filter(({ value, unit }) => value > 0 || unit === '日')
-              .map(({ value, unit }, i, arr) => (
+            {breakdownUnits(countdown.days).map(({ value, unit }, i, arr) => (
                 <div key={unit} className="flex items-center gap-4">
                   <div className="flex items-center gap-1">
                     <span className={`text-4xl font-black tabular-nums leading-none ${theme.accent}`}>
