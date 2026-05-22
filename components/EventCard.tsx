@@ -90,7 +90,7 @@ export default function EventCard({ event, index, onEdit }: EventCardProps) {
       transition={{ duration: 0.35, delay: index * 0.06, ease: [0.23, 1, 0.32, 1] }}
       className={`
         group relative flex items-center justify-between
-        rounded-2xl border bg-gradient-to-r ${theme.gradient} ${theme.border}
+        rounded-2xl bg-gradient-to-r ${theme.gradient}
         bg-zinc-900/50 backdrop-blur-sm px-6 h-20
         transition-colors duration-200 hover:bg-zinc-900/70
       `}

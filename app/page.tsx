@@ -73,7 +73,7 @@ export default async function LandingPage() {
           {EXAMPLE_EVENTS.map((event, i) => (
             <div
               key={i}
-              className={`group flex items-center justify-between rounded-2xl border bg-gradient-to-r ${event.gradient} ${event.border} bg-zinc-900/50 px-6 h-20`}
+              className={`group flex items-center justify-between rounded-2xl bg-gradient-to-r ${event.gradient} bg-zinc-900/50 px-6 h-20`}
             >
               <div className="flex items-center gap-4 min-w-0">
                 <span className="text-2xl flex-shrink-0">{event.emoji}</span>
