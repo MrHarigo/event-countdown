@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { HexColorPicker } from 'react-colorful'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -46,7 +48,20 @@ export default function AddEventModal({ open, onOpenChange, editingEvent, onSubm
   const [loading, setLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [calendarMonth, setCalendarMonth] = useState<Date>(new Date())
   const pickerRef = useRef<HTMLDivElement>(null)
+
+  function handleCalendarWheel(e: React.WheelEvent) {
+    e.preventDefault()
+    const today = new Date()
+    today.setDate(1)
+    today.setHours(0, 0, 0, 0)
+    setCalendarMonth((prev) => {
+      const next = new Date(prev)
+      next.setMonth(next.getMonth() + (e.deltaY > 0 ? 1 : -1))
+      return next < today ? prev : next
+    })
+  }
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -90,8 +105,17 @@ export default function AddEventModal({ open, onOpenChange, editingEvent, onSubm
     }
   }
 
-  const today = new Date().toISOString().split('T')[0]
   const customHex = color.startsWith('#') ? color : '#a78bfa'
+
+  const selectedDate = targetDate ? new Date(targetDate + 'T00:00:00') : undefined
+
+  useEffect(() => {
+    setCalendarMonth(selectedDate ?? new Date())
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
+  const displayDate = selectedDate
+    ? selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    : 'Pick a date'
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -139,16 +163,27 @@ export default function AddEventModal({ open, onOpenChange, editingEvent, onSubm
 
           {/* Date */}
           <div className="flex flex-col gap-2">
-            <Label htmlFor="date" className="text-zinc-400 text-xs uppercase tracking-wider">Target date</Label>
-            <Input
-              id="date"
-              type="date"
-              value={targetDate}
-              min={today}
-              onChange={(e) => setTargetDate(e.target.value)}
-              className="bg-zinc-800/80 border-white/10 text-white focus-visible:ring-white/20 [color-scheme:dark]"
-              required
-            />
+            <Label className="text-zinc-400 text-xs uppercase tracking-wider">Target date</Label>
+            <Popover>
+              <PopoverTrigger
+                className={`flex h-9 w-full items-center justify-start rounded-md border border-white/10 bg-zinc-800/80 px-3 text-sm transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/20 ${!targetDate ? 'text-zinc-600' : 'text-white'}`}
+              >
+                {displayDate}
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-auto p-0">
+                <div onWheel={handleCalendarWheel}>
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => setTargetDate(date ? date.toLocaleDateString('en-CA') : '')}
+                    disabled={{ before: new Date() }}
+                    startMonth={new Date()}
+                    month={calendarMonth}
+                    onMonthChange={setCalendarMonth}
+                  />
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Color */}
