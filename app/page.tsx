@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { auth } from '@/lib/auth'
 import AuthButtons from '@/components/AuthButtons'
 
 const EXAMPLE_EVENTS = [
@@ -51,9 +51,8 @@ function formatUnits(days: number) {
 export default async function LandingPage() {
   if (process.env.DEV_BYPASS_AUTH === 'true') redirect('/dashboard')
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user) redirect('/dashboard')
+  const session = await auth()
+  if (session?.user) redirect('/dashboard')
 
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col">

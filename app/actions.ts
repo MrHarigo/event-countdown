@@ -1,7 +1,9 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { auth, signOut as authSignOut } from '@/lib/auth'
+import { sql } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 
 export type EventColor = string
 
@@ -16,11 +18,10 @@ export interface EventRow {
   created_at: string
 }
 
-async function getAuthenticatedClient() {
-  const supabase = await createClient()
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error || !user) throw new Error('Unauthorized')
-  return { supabase, user }
+async function getUserId() {
+  const session = await auth()
+  if (!session?.user?.id) redirect('/')
+  return session.user.id
 }
 
 export async function createEvent(data: {
@@ -30,18 +31,15 @@ export async function createEvent(data: {
   color: EventColor
   note?: string
 }) {
-  const { supabase, user } = await getAuthenticatedClient()
-
-  const { error } = await supabase.from('events').insert({
-    user_id: user.id,
-    title: data.title,
-    emoji: data.emoji,
-    target_date: data.target_date,
-    color: data.color,
-    note: data.note || null,
-  })
-
-  if (error) return { error: error.message }
+  const userId = await getUserId()
+  try {
+    await sql`
+      INSERT INTO events (user_id, title, emoji, target_date, color, note)
+      VALUES (${userId}, ${data.title}, ${data.emoji}, ${data.target_date}::date, ${data.color}, ${data.note || null})
+    `
+  } catch {
+    return { error: 'Failed to create event' }
+  }
   revalidatePath('/dashboard')
   return { success: true }
 }
@@ -53,33 +51,38 @@ export async function updateEvent(id: string, data: {
   color?: EventColor
   note?: string
 }) {
-  const { supabase } = await getAuthenticatedClient()
-
-  const { error } = await supabase
-    .from('events')
-    .update(data)
-    .eq('id', id)
-
-  if (error) return { error: error.message }
+  const userId = await getUserId()
+  try {
+    await sql`
+      UPDATE events
+      SET
+        title       = COALESCE(${data.title ?? null}, title),
+        emoji       = COALESCE(${data.emoji ?? null}, emoji),
+        target_date = COALESCE(${data.target_date ?? null}::date, target_date),
+        color       = COALESCE(${data.color ?? null}, color),
+        note        = ${data.note !== undefined ? (data.note || null) : null}
+      WHERE id = ${id}::uuid AND user_id = ${userId}
+    `
+  } catch {
+    return { error: 'Failed to update event' }
+  }
   revalidatePath('/dashboard')
   return { success: true }
 }
 
 export async function deleteEvent(id: string) {
-  const { supabase } = await getAuthenticatedClient()
-
-  const { error } = await supabase
-    .from('events')
-    .delete()
-    .eq('id', id)
-
-  if (error) return { error: error.message }
+  const userId = await getUserId()
+  try {
+    await sql`
+      DELETE FROM events WHERE id = ${id}::uuid AND user_id = ${userId}
+    `
+  } catch {
+    return { error: 'Failed to delete event' }
+  }
   revalidatePath('/dashboard')
   return { success: true }
 }
 
 export async function signOut() {
-  const supabase = await createClient()
-  await supabase.auth.signOut()
-  revalidatePath('/')
+  await authSignOut({ redirectTo: '/' })
 }

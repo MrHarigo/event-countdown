@@ -1,38 +1,34 @@
-'use client'
-
-import { createClient } from '@/lib/supabase/client'
+import { signIn } from '@/lib/auth'
 
 export default function AuthButtons({ prominent }: { prominent?: boolean }) {
-  const supabase = createClient()
-
-  async function signIn() {
-    await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
+  async function handleSignIn() {
+    'use server'
+    await signIn('github', { redirectTo: '/dashboard' })
   }
 
   if (prominent) {
     return (
-      <button
-        onClick={signIn}
-        className="flex items-center justify-center gap-2.5 bg-zinc-800 text-white font-semibold px-6 py-3 rounded-xl hover:bg-zinc-700 transition-all hover:scale-[1.02] active:scale-[0.98] border border-white/10 shadow-lg mt-2"
-      >
-        <GitHubIcon />
-        Continue with GitHub
-      </button>
+      <form action={handleSignIn}>
+        <button
+          type="submit"
+          className="flex items-center justify-center gap-2.5 bg-zinc-800 text-white font-semibold px-6 py-3 rounded-xl hover:bg-zinc-700 transition-all hover:scale-[1.02] active:scale-[0.98] border border-white/10 shadow-lg mt-2"
+        >
+          <GitHubIcon />
+          Continue with GitHub
+        </button>
+      </form>
     )
   }
 
   return (
-    <button
-      onClick={signIn}
-      className="text-sm text-zinc-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors"
-    >
-      Sign in
-    </button>
+    <form action={handleSignIn}>
+      <button
+        type="submit"
+        className="text-sm text-zinc-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors"
+      >
+        Sign in
+      </button>
+    </form>
   )
 }
 

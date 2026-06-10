@@ -2,9 +2,14 @@
 
 import { signOut } from '@/app/actions'
 import { useRouter } from 'next/navigation'
-import { User } from '@supabase/supabase-js'
 
-export default function Navbar({ user }: { user: User }) {
+interface NavUser {
+  id?: string
+  email?: string | null
+  name?: string | null
+}
+
+export default function Navbar({ user }: { user: NavUser }) {
   const router = useRouter()
 
   async function handleSignOut() {

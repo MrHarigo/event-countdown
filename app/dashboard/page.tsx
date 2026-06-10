@@ -1,14 +1,11 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { auth } from '@/lib/auth'
+import { sql } from '@/lib/db'
 import Navbar from '@/components/Navbar'
 import EventGrid from '@/components/EventGrid'
 import { EventRow } from '@/app/actions'
-import type { User } from '@supabase/supabase-js'
 
-const DEV_USER = {
-  id: 'dev-user',
-  email: 'dev@localhost',
-} as User
+const DEV_USER = { id: 'dev-user', email: 'dev@localhost', name: 'Dev User' }
 
 const DEV_EVENTS: EventRow[] = [
   { id: '1', user_id: 'dev-user', title: 'Getting a car', emoji: '🚗', target_date: '2026-11-01', color: 'violet', note: null, created_at: '' },
@@ -20,24 +17,22 @@ const DEV_EVENTS: EventRow[] = [
 export default async function DashboardPage() {
   const isDev = process.env.DEV_BYPASS_AUTH === 'true'
 
-  let user: User
+  let user: { id: string; email?: string | null; name?: string | null }
   let events: EventRow[]
 
   if (isDev) {
     user = DEV_USER
     events = DEV_EVENTS
   } else {
-    const supabase = await createClient()
-    const { data: { user: authUser } } = await supabase.auth.getUser()
-    if (!authUser) redirect('/')
-    user = authUser
+    const session = await auth()
+    if (!session?.user?.id) redirect('/')
+    user = session.user
 
-    const { data } = await supabase
-      .from('events')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('target_date', { ascending: true })
-    events = (data as EventRow[]) || []
+    events = (await sql`
+      SELECT * FROM events
+      WHERE user_id = ${session.user.id}
+      ORDER BY target_date ASC
+    `) as EventRow[]
   }
 
   return (
