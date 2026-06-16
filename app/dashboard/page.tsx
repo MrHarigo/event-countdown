@@ -29,7 +29,10 @@ export default async function DashboardPage() {
     user = session.user
 
     events = (await sql`
-      SELECT * FROM events
+      SELECT id, user_id, title, emoji,
+             target_date::text AS target_date,
+             color, note, created_at
+      FROM events
       WHERE user_id = ${session.user.id}
       ORDER BY target_date ASC
     `) as EventRow[]
